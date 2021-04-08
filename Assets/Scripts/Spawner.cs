@@ -14,31 +14,24 @@ public class Spawner : MonoBehaviour
 {
     public int actors;
 
-    public int boxes;
+    public GameObject actorPrefab;
+    public Entity actorEntity;
+    public GameObject particlePrefab;
+    public Entity particleEntity;
     
-    [SerializeField] private Mesh unitMesh;
-    [SerializeField] private Material unitMaterial;
-
-    public GameObject gameObjectPrefab;
-    [SerializeField] private Mesh particleMesh;
-    [SerializeField] private Material particleMaterial;
-    
+   
     private Entity entityPrefab;
     private World defaultWorld;
     private EntityManager entityManager;
 
+    public float trailSpawnRate;
+    public float trailLifetime;
+
     void MakeActor()
     {
         EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        EntityArchetype archetype = entityManager.CreateArchetype(
-                        typeof(Translation),
-                        typeof(Rotation),
-                        typeof(RenderMesh),
-                        typeof(RenderBounds),
-                        typeof(LocalToWorld),
-                        typeof(MoveData),
-                        typeof(SensorData));
-        Entity entity = entityManager.CreateEntity(archetype);
+        
+        Entity entity = entityManager.Instantiate(actorEntity);
 
         entityManager.AddComponentData(entity,
                         new Translation()
@@ -66,57 +59,34 @@ public class Spawner : MonoBehaviour
                                         rightSensorDistance = 3f,
                                         rightSensorSize = 1f
                         });
-        entityManager.AddSharedComponentData(entity, new RenderMesh
-        {
-                        mesh = unitMesh,
-                        material = unitMaterial
-        });
-    }
-    
-    void MakeParticle()
-    {
-        EntityManager entityManager = World.DefaultGameObjectInjectionWorld.EntityManager;
-        EntityArchetype archetype = entityManager.CreateArchetype(
-                        typeof(Translation),
-                        typeof(Rotation),
-                        typeof(RenderMesh),
-                        typeof(RenderBounds),
-                        typeof(LocalToWorld),
-                        typeof(PhysicsCollider));
-        Entity entity = entityManager.CreateEntity(archetype);
-
         entityManager.AddComponentData(entity,
-                        new Translation()
+                        new TrailData()
                         {
-                                        Value = new float3(Random.Range(0f, 100f), 0f, Random.Range(0f, 100f))
-                        }
-        );
-        var collider = new PhysicsCollider();
-        
-        
-        entityManager.AddSharedComponentData(entity, new RenderMesh
-        {
-                        mesh = unitMesh,
-                        material = unitMaterial
-        });
+                                        spawnRate = trailSpawnRate,
+                                        particleEntity = particleEntity,
+                                        lastSpawnedTime = 0f
+                        });
     }
+
     
     void Start()
     {
         defaultWorld = World.DefaultGameObjectInjectionWorld;
         entityManager = defaultWorld.EntityManager;
 
-        // generate Entity Prefab
-        if (gameObjectPrefab != null)
+        if (particlePrefab != null)
         {
-            GameObjectConversionSettings settings = GameObjectConversionSettings.FromWorld(defaultWorld, null);
-            entityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(gameObjectPrefab, settings);
+            particleEntity = GameObjectConversionUtility.ConvertGameObjectHierarchy(
+                            particlePrefab,
+                            GameObjectConversionSettings.FromWorld(defaultWorld, null)
+            );
+        }
 
-            
-            for (int i = 0; i < boxes; i++)
-            {
-                InstantiateEntity(new float3(Random.Range(0f, 100f), 0f, Random.Range(0f, 100f)));
-            }
+        if (actorPrefab != null)
+        {
+            actorEntity = GameObjectConversionUtility.ConvertGameObjectHierarchy(
+                            actorPrefab,
+                            GameObjectConversionSettings.FromWorld(defaultWorld, null));
         }
         
         for (int i = 0; i < actors; i++)
@@ -125,43 +95,5 @@ public class Spawner : MonoBehaviour
         }
         
     }
-    
-    private void InstantiateEntity(float3 position)
-    {
-        if (entityManager == null)
-        {
-            Debug.LogWarning("InstantiateEntity WARNING: No EntityManager found!");
-            return;
-        }
 
-        Entity myEntity = entityManager.Instantiate(entityPrefab);
-        entityManager.SetComponentData(myEntity, new Translation
-        {
-                        Value = position
-        });
-    }
-
-    private void ConvertToEntity(float3 position)
-    {
-        if (entityManager == null)
-        {
-            Debug.LogWarning("ConvertToEntity WARNING: No EntityManager found!");
-            return;
-        }
-
-        if (gameObjectPrefab == null)
-        {
-            Debug.LogWarning("ConvertToEntity WARNING: Missing GameObject Prefab");
-            return;
-        }
-
-        GameObjectConversionSettings settings = GameObjectConversionSettings.FromWorld(defaultWorld, null);
-        entityPrefab = GameObjectConversionUtility.ConvertGameObjectHierarchy(gameObjectPrefab, settings);
-
-        Entity myEntity = entityManager.Instantiate(entityPrefab);
-        entityManager.SetComponentData(myEntity, new Translation
-        {
-                        Value = position
-        });
-    }
 }
