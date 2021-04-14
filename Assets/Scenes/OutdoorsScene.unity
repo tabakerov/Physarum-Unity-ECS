@@ -599,11 +599,14 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 32c2cf1fb4667e144942545eaebfe611, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  actors: 100
-  actorPrefab: {fileID: 7004305315689336174, guid: 29a007e601dd87e4e8ed3d4bc5df3b06, type: 3}
-  particlePrefab: {fileID: 662273964677068383, guid: bba614f55054fff4689986df27834441, type: 3}
-  trailSpawnRate: 0
-  trailLifetime: 0
+  renderMesh:
+    mesh: {fileID: 10207, guid: 0000000000000000e000000000000000, type: 0}
+    material: {fileID: 2100000, guid: 6acbc74c2eb5f8248bdda6c8535d2358, type: 2}
+    subMesh: 0
+    layer: 0
+    castShadows: 0
+    receiveShadows: 0
+    needMotionVectorPass: 0
 --- !u!1 &2013410473
 GameObject:
   m_ObjectHideFlags: 1

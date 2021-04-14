@@ -5,6 +5,7 @@ using Unity.Jobs;
 using Unity.Mathematics;
 using Unity.Transforms;
 
+//[DisableAutoCreation]
 public class LifetimeSystem : SystemBase
 {
     private EntityCommandBufferSystem _entityCommandBuffer;
@@ -17,6 +18,7 @@ public class LifetimeSystem : SystemBase
     
     protected override void OnUpdate()
     {
+        
         var ecb = _entityCommandBuffer.CreateCommandBuffer().AsParallelWriter();
         
         var dt = Time.DeltaTime;
@@ -38,5 +40,6 @@ public class LifetimeSystem : SystemBase
             // For example,
             //     translation.Value += math.mul(rotation.Value, new float3(0, 0, 1)) * deltaTime;
         }).Schedule();
+        _entityCommandBuffer.AddJobHandleForProducer(this.Dependency);
     }
 }

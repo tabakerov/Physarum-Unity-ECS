@@ -41,15 +41,18 @@ public struct MoveJob : IJobEntityBatch
                 math.sin(moveDatas[i].angle), math.cos(moveDatas[i].angle));
 
             float3 newTranslation = translations[i].Value + DeltaTime * GetDeltaVector(moveDatas[i].speed, moveDatas[i].angle);
+            
             if (newTranslation.x < 0) newTranslation.x += 100;
             if (newTranslation.z < 0) newTranslation.z += 100;
             newTranslation.x %= 100;
             newTranslation.z %= 100;
+            
             translations[i] = new Translation() { Value = newTranslation };
         }
     }
 }
 
+//[DisableAutoCreation]
 public class MoveSystem : SystemBase
 {
     EntityQuery query;

@@ -87,8 +87,10 @@ public struct SensorJob : IJobEntityBatch
             distanceHits.Dispose();
 
             float angle = DeltaTime * moveDatas[i].rotSpeed;
+            //Debug.Log($"Hits are {left}, {center}, {right}");
             if (right > center && right > left)
             {
+                //Debug.Log("Turn right ");
                 moveDatas[i] = new MoveData()
                 {
                     speed = moveDatas[i].speed,
@@ -97,6 +99,7 @@ public struct SensorJob : IJobEntityBatch
                 };
             } else if (left > right && left > center)
             {
+                //Debug.Log("Turn left");
                 moveDatas[i] = new MoveData()
                 {
                     speed = moveDatas[i].speed,
@@ -127,6 +130,7 @@ public struct SensorJob : IJobEntityBatch
     }
 }
 
+//[DisableAutoCreation]
 public class SensorSystem : SystemBase
 {
     EntityQuery query;
@@ -134,6 +138,7 @@ public class SensorSystem : SystemBase
     protected override void OnCreate()
     {
         base.OnCreate();
+        
         var description = new EntityQueryDesc()
         {
             All = new ComponentType[]
@@ -144,11 +149,11 @@ public class SensorSystem : SystemBase
             }
         };
         query = this.GetEntityQuery(description);
+        
     }
 
     protected override void OnUpdate()
     {
-
         var updateTranslationJob = new SensorJob();
         updateTranslationJob.moveDataTypeHandle = this.
             GetComponentTypeHandle<MoveData>(false);
@@ -162,8 +167,8 @@ public class SensorSystem : SystemBase
             DefaultGameObjectInjectionWorld.
             GetExistingSystem<BuildPhysicsWorld>().PhysicsWorld;
 
-        this.Dependency = updateTranslationJob.
-            ScheduleParallel(query, 1, this.Dependency);
+        updateTranslationJob.
+            ScheduleParallel(query, 1, this.Dependency).Complete();
         
         
     }

@@ -5,5 +5,4 @@
     {
         public float spawnRate;
         public float lastSpawnedTime;
-        public Entity particleEntity;
     }
